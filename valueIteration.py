@@ -1,25 +1,17 @@
+from readingFile import read_file 
 import numpy as np
 
 file  = open("file.txt", "r")
-gamma = 0.5
+gamma = 1
 epsilon = 0.2
 
-actions = {
-    "up": {
-        "adjacent": ["left", "right"]
-        },
-    "down": {
-        "adjacent": ["left", "right"]
-        },
-    "left": {
-        "adjacent": ["left", "right"]
-        },
-    "right": 3
-}
-
-
 # Extracting all possible positions in file and corresponding meaning 
-my_array = np.genfromtxt("file.txt", delimiter=',')
+# my_array = np.genfromtxt("file.txt", delimiter=',')
+grid, gamma, threshold = read_file("file.txt")
+my_array  = grid
+print(my_array)
+print(grid)
+gamma = 1
 
 # Initializing starting position of pacman in matrix
 
@@ -27,7 +19,7 @@ starting_state = [2,0]
 
 # Define a state dictionary to store information for all the possible states in the pacman game, their reward, are they terminal ?, current_V(s)
 stateDict  = [ [
-    {"value": 0, "bestAction":"none", "reward": ( lambda : -0.04 if my_array[i][j] ==0 else (1 if my_array[i][j] == 1 else (-1 if my_array[i][j] ==2 else 0)))()   } 
+    {"value": 0, "reward": ( lambda : -0.04 if my_array[i][j] ==0 else (1 if my_array[i][j] == 1 else (-1 if my_array[i][j] ==2 else 0)))()   } 
         for j in range(4) ] for i in range(3)]
 
 temp_dict = [[( lambda : -0.04 if my_array[i][j] ==0 else (1 if my_array[i][j] == 1 else -1))() for j in range(4)] for i in range(3)]
@@ -42,8 +34,6 @@ print(temp_dict)
 
 
 def Qvalue(state, action):
-    # print('Inside QValue state is ', state)
-    # print("Inside QValue Action is ",  action)
     value  = 0
     if(action == "up" or action == "down"): 
         # print("Action is indeed up or down", action, )  
@@ -52,7 +42,6 @@ def Qvalue(state, action):
         value += calculate(explore(state,"right"),0.1)
     
     if(action == "left" or action == "right"):
-        # print("Action is indeed left or right", action)  
 
         value += calculate(explore(state,action),0.8)
         value += calculate(explore(state,"up"),0.1)
@@ -96,16 +85,28 @@ def setValue(state, value):
     temp_dict[state[0]][state[1]] =value
     return
 
+def convergence():
+    # calculate the absolute difference between previous utility with current utility
+    return 1;
+
 def value_iterate():
      
     # value ,next_state  =    max(values, key=lambda x: x[1]
-    current_state = [0,2]
+    current_state = [2,0]
     all_actions_taken  = ["Start"]
     count = 1
-    while (count != 20) :
+    while (count != 40) :
         print('RUNNING FOR THE ',count,"th time")
         print(current_state)
         print(not(stateDict[current_state[0]][current_state[1]]['reward'] == 1 or stateDict[current_state[0]][current_state[1]]['reward'] == -1))
+        if(stateDict[current_state[0]][current_state[1]]['reward'] == 1):
+            print("Found a path")
+            break
+        if(stateDict[current_state[0]][current_state[1]]['reward'] == -1):
+            print("Monster found")
+            break
+        
+        
         allQValues = [
             Qvalue(current_state, "up"),
             Qvalue(current_state, "down"),
@@ -123,17 +124,5 @@ def value_iterate():
     for row in temp_dict:
         print(row)
 
+
 value_iterate()
-
-'''
-0,0,0,1
-0,3,0,2
-0,0,0,0
-
-[3][0]
-
-0  1  2  3
-4  5  6  7
-8  9  10 11
-
-'''
