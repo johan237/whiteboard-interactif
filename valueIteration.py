@@ -1,4 +1,4 @@
-from readingFile import read_file 
+from readingFile import read_file, addTrace
 import numpy as np
 
 actions = {
@@ -105,39 +105,49 @@ def value_iterate():
     current_state = [2,0]
     all_actions_taken  = ["Start"]
     count = 1
-    while (count != 30) :
+    compoundDifference = 0;
+    while (count <= 15) :
+        if(stateDict[current_state[0]][current_state[1]]["reward"] == 1) : 
+            print('******Reached End state********')
+            break
         allQValues = [
             Qvalue(current_state, "up"),
             Qvalue(current_state, "down"),
             Qvalue(current_state, "left"),
             Qvalue(current_state, "right"),
             ]
-        current_state_utility = stateDict[current_state[0]][current_state[1]]["utility"]
-        if(current_state_utility == 1) : 
-            print('******Reached End state********')
-            break
+        current_state_utility = stateDict[current_state[0]][current_state[1]]["utility"]      
         maxQValueArray = max(allQValues, key=lambda x: x[0])
         utility, next_state, action  = maxQValueArray
         difference  = abs(utility - current_state_utility)
+        compoundDifference += difference
         # if(difference <= epsilon) : break 
-        # print(allQValues)
-        #  [current_state_utility, current_state, action]
+        print(current_state, action)
+
         action_taken = action + "[" + str(next_state[0]) + " " + str(next_state[1]) + "]"
-        print(allQValues)
         all_actions_taken.append(action)
         setUtility(current_state, utility)
         current_state =  next_state
+        
         count = count + 1
-    print(all_actions_taken)
-    
-    print('End ')
-    # for row in temp_dict:
-    #     print(row)
-
-for i in range(4):
-    value_iterate()
+    # print(all_actions_taken)
+    all_actions_taken.append(f'Difference is {compoundDifference}')
+    addTrace(all_actions_taken, 'trace.txt')
     for row in temp_dict:
         print(row)
+    
+    return compoundDifference 
+# for i in range(40):
+#     value_iterate()
+#     for row in temp_dict:
+#         print(row)
+
+
+diff = value_iterate()
+print(diff)
+while(diff > threshold):
+    diff = value_iterate()
+    print(diff)
 # for row in temp_dict:
 #         print(row)
 

@@ -11,7 +11,9 @@ def read_file(file_path):
     return grid, gamma, threshold, 
 
 
-grid, gamma, threshold,  = read_file('Q-Learning.txt')
-print(grid)
-print(gamma)
-print(threshold)
+def addTrace(steps, file_path):
+    try:
+        with open(file_path, 'a') as file:
+            file.write('->'.join(steps) + '\n')
+    except IOError:
+        print(f'Error: Could not open or write to the file {file_path}.')
